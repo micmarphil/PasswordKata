@@ -16,13 +16,28 @@ namespace PasswordKata
 
         public VerificationResult Verify(string password)
         {
+            var notNullRule = new NotNullRule();
+
+            if (!notNullRule.Validate(password))
+                return new InvalidPassword() {ValidationMessages = 
+                    new List<string>() {notNullRule.FailureMessage()}};
+
             var rules = new List<IRule>()
                      {new MinimumLengthRule(),
-                      new NotNullRule(),
                       new UppercaseCharacterRule(),
                       new LowercaseCharacterRule(),
                       new NumericCharacterRule()};
 
+            var validationMessages = EvaluateRules(password, rules);
+
+            if (validationMessages.Count == 0)
+                return new ValidPassword();
+
+            return new InvalidPassword() {ValidationMessages = validationMessages};
+        }
+
+        private List<string> EvaluateRules(string password, List<IRule> rules)
+        {
             var validationMessages = new List<string>();
 
             foreach (var rule in rules)
@@ -35,10 +50,7 @@ namespace PasswordKata
                 }
             }
 
-            if (validationMessages.Count == 0)
-                return new ValidPassword();
-
-            return new InvalidPassword() {ValidationMessages = validationMessages};
+            return validationMessages;
         }
 
     }
