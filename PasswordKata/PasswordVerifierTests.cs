@@ -10,14 +10,14 @@ namespace PasswordKata
     [TestFixture]
     public class PasswordVerifierTests
     {
-        [Test]
-        public void PasswordHelper_ReturnsValidPassword()
-        {
-            var validPassword = PasswordHelper.ValidPassword();
-            var verifier = new PasswordVerifier();
+        //[Test]
+        //public void PasswordHelper_ReturnsValidPassword()
+        //{
+        //    var validPassword = PasswordHelper.ValidPassword();
+        //    var verifier = new PasswordVerifier();
 
-            Assert.DoesNotThrow(() => verifier.Verify(validPassword));
-        }
+        //    Assert.DoesNotThrow(() => verifier.Verify(validPassword));
+        //}
 
 
         [Test]
@@ -111,59 +111,18 @@ namespace PasswordKata
         }
 
         [Test]
-        public void AllRulesEnforced()
+        public void AllValidationsMustPass_ReturnsForAnyPassword_VerificationResult()
         {
+            var allValidationsMustPass = new AllValidationsMustPass();
 
+            var invalidPasswordResult = allValidationsMustPass.Verify(null);
+            var validPasswordResult = allValidationsMustPass.Verify(PasswordHelper.ValidPassword());
+
+            Assert.IsInstanceOf<VerificationResult>(invalidPasswordResult);
+            Assert.IsInstanceOf<VerificationResult>(validPasswordResult);
         }
 
-    }
-
-    public class PasswordVerifier
-    {
-        public void Verify(string password, IValidationStrategy validationStrategy)
-        {
-            var validationResult = validationStrategy.Verify(password);
-            if (validationResult is ValidPassword)
-            {
-                return;
-            }
-
-            throw new ArgumentException("");
-        }
-    }
-
-    public abstract class VerificationResult
-    {
-        public abstract List<string> ValidationMessages();
-    }
-
-    public class ValidPassword : VerificationResult
-    {
 
     }
 
-    public class InvalidPassword : VerificationResult
-    {
-
-    }
-
-    public interface IValidationStrategy
-    {
-        VerificationResult Verify(string password);
-    }
-
-    public class TestValidationStrategy : IValidationStrategy
-    {
-        private Func<VerificationResult> _resultToReturn;
-
-        public TestValidationStrategy(Func<VerificationResult> resultToReturn)
-        {
-            _resultToReturn = resultToReturn;
-        }
-
-        public VerificationResult Verify(string password)
-        {
-            return _resultToReturn.Invoke();
-        }
-    }
 }
